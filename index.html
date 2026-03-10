@@ -230,7 +230,139 @@
   }
   .mode-tag-live { background: #dcfce7; color: #15803d; }
   .mode-tag-demo { background: #fef3c7; color: #92400e; }
-</style>
+
+  /* ── Floating CO-STAR Reference ── */
+  .cs-fab {
+    position: fixed;
+    bottom: 24px;
+    right: 20px;
+    z-index: 999;
+    background: #1a7f6e;
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 11px 18px;
+    font-family: inherit;
+    font-size: 0.82rem;
+    font-weight: 800;
+    cursor: pointer;
+    box-shadow: 0 4px 18px rgba(26,127,110,0.35);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.2s;
+  }
+  .cs-fab:hover { background: #15695a; transform: translateY(-2px); box-shadow: 0 6px 22px rgba(26,127,110,0.4); }
+  .cs-fab-icon { font-size: 1rem; }
+
+  .cs-drawer-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.25);
+    z-index: 1000;
+    display: none;
+    animation: fadeOverlay 0.2s ease;
+  }
+  .cs-drawer-overlay.open { display: block; }
+  @keyframes fadeOverlay { from { opacity: 0; } to { opacity: 1; } }
+
+  .cs-drawer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1001;
+    background: #fff;
+    border-radius: 20px 20px 0 0;
+    padding: 0 0 32px;
+    box-shadow: 0 -4px 30px rgba(0,0,0,0.12);
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.4,0,0.2,1);
+    max-height: 88vh;
+    overflow-y: auto;
+  }
+  .cs-drawer.open { transform: translateY(0); }
+
+  .cs-drawer-handle {
+    width: 40px; height: 4px;
+    background: #e5ddd5;
+    border-radius: 99px;
+    margin: 12px auto 0;
+  }
+
+  .cs-drawer-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 24px 12px;
+    border-bottom: 1px solid #f0ebe4;
+    position: sticky;
+    top: 0;
+    background: #fff;
+    z-index: 1;
+  }
+  .cs-drawer-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: #1a7f6e;
+  }
+  .cs-drawer-close {
+    background: #f7f4ef;
+    border: none;
+    border-radius: 8px;
+    width: 32px; height: 32px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    color: #78716c;
+    transition: background 0.15s;
+  }
+  .cs-drawer-close:hover { background: #ede8e1; }
+
+  .cs-drawer-body { padding: 16px 20px 0; }
+
+  .cs-ref-row {
+    display: flex;
+    gap: 14px;
+    align-items: flex-start;
+    padding: 14px 0;
+    border-bottom: 1px solid #f5f0eb;
+  }
+  .cs-ref-row:last-child { border-bottom: none; }
+
+  .cs-ref-badge {
+    width: 42px; height: 42px;
+    border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4rem; font-weight: 900;
+    flex-shrink: 0;
+    color: #fff;
+  }
+  .cs-ref-content { flex: 1; }
+  .cs-ref-word { font-weight: 800; font-size: 0.9rem; margin-bottom: 2px; }
+  .cs-ref-def { font-size: 0.82rem; color: #78716c; line-height: 1.5; margin-bottom: 5px; }
+  .cs-ref-example {
+    font-size: 0.78rem;
+    font-style: italic;
+    color: #a8a29e;
+    background: #f7f4ef;
+    border-radius: 6px;
+    padding: 5px 9px;
+    line-height: 1.5;
+  }
+  .cs-ref-example strong { color: #57534e; font-style: normal; font-weight: 700; }
+
+  .cs-drawer-tip {
+    margin: 16px 20px 0;
+    background: #e8f5f2;
+    border-radius: 12px;
+    padding: 14px 16px;
+    font-size: 0.84rem;
+    color: #1a5c52;
+    line-height: 1.65;
+  }
+  .cs-drawer-tip strong { font-weight: 800; }</style>
+
 </head>
 <body>
 <div class="page">
@@ -425,6 +557,84 @@
     </div>
   </div>
 
+</div>
+
+<!-- ── Floating CO-STAR Reference Button (visible on every screen) ── -->
+<button class="cs-fab" onclick="openCSDrawer()" aria-label="Open CO-STAR reference">
+  <span class="cs-fab-icon">📖</span>
+  CO-STAR cheatsheet
+</button>
+
+<!-- ── Overlay (closes drawer when tapped) ── -->
+<div class="cs-drawer-overlay" id="cs-overlay" onclick="closeCSDrawer()"></div>
+
+<!-- ── Slide-up drawer ── -->
+<div class="cs-drawer" id="cs-drawer" role="dialog" aria-modal="true" aria-label="CO-STAR Reference">
+  <div class="cs-drawer-handle"></div>
+  <div class="cs-drawer-header">
+    <div class="cs-drawer-title">CO-STAR Quick Reference</div>
+    <button class="cs-drawer-close" onclick="closeCSDrawer()" aria-label="Close">✕</button>
+  </div>
+  <div class="cs-drawer-body">
+
+    <div class="cs-ref-row">
+      <div class="cs-ref-badge" style="background:#1a7f6e;">C</div>
+      <div class="cs-ref-content">
+        <div class="cs-ref-word" style="color:#1a7f6e;">Context</div>
+        <div class="cs-ref-def">Give the AI the background it needs. Who are you? What is the situation? What does the AI need to know before it can help?</div>
+        <div class="cs-ref-example"><strong>Example:</strong> "I am a project manager at a software company. Our team of 8 has just missed a key deadline due to a server outage."</div>
+      </div>
+    </div>
+
+    <div class="cs-ref-row">
+      <div class="cs-ref-badge" style="background:#e8623a;">O</div>
+      <div class="cs-ref-content">
+        <div class="cs-ref-word" style="color:#e8623a;">Objective</div>
+        <div class="cs-ref-def">State your goal clearly. What exactly do you want the AI to produce or achieve? Be specific — vague objectives get vague results.</div>
+        <div class="cs-ref-example"><strong>Example:</strong> "Write a client email explaining the delay, reassuring them we are on track, and proposing a new delivery date."</div>
+      </div>
+    </div>
+
+    <div class="cs-ref-row">
+      <div class="cs-ref-badge" style="background:#7c3aed;">S</div>
+      <div class="cs-ref-content">
+        <div class="cs-ref-word" style="color:#7c3aed;">Style</div>
+        <div class="cs-ref-def">Describe how the response should be written. Should it use bullet points? Flow as a narrative? Follow a specific structure like a news article or business memo?</div>
+        <div class="cs-ref-example"><strong>Example:</strong> "Write in a concise business memo style with short paragraphs. No jargon."</div>
+      </div>
+    </div>
+
+    <div class="cs-ref-row">
+      <div class="cs-ref-badge" style="background:#d97706;">T</div>
+      <div class="cs-ref-content">
+        <div class="cs-ref-word" style="color:#d97706;">Tone</div>
+        <div class="cs-ref-def">Set the emotional feel. Should the response sound warm and friendly, authoritative and formal, enthusiastic and motivating, or calm and empathetic?</div>
+        <div class="cs-ref-example"><strong>Example:</strong> "Use a calm, reassuring tone — honest about the issue but confident about the resolution."</div>
+      </div>
+    </div>
+
+    <div class="cs-ref-row">
+      <div class="cs-ref-badge" style="background:#15803d;">A</div>
+      <div class="cs-ref-content">
+        <div class="cs-ref-word" style="color:#15803d;">Audience</div>
+        <div class="cs-ref-def">Describe who will read or use the output. Their expertise, role, and expectations shape everything — language, depth, and assumptions all change based on the reader.</div>
+        <div class="cs-ref-example"><strong>Example:</strong> "The reader is a senior bank executive with no technical background who values brevity and accountability."</div>
+      </div>
+    </div>
+
+    <div class="cs-ref-row">
+      <div class="cs-ref-badge" style="background:#dc2626;">R</div>
+      <div class="cs-ref-content">
+        <div class="cs-ref-word" style="color:#dc2626;">Response</div>
+        <div class="cs-ref-def">Specify the format of the output. Should it be an email, a numbered list, a table, a one-page summary, a step-by-step plan? The more specific, the better.</div>
+        <div class="cs-ref-example"><strong>Example:</strong> "Format it as a professional email with a subject line, three short paragraphs, and a clear next step at the end."</div>
+      </div>
+    </div>
+
+  </div>
+  <div class="cs-drawer-tip">
+    <strong>Pro tip:</strong> You do not need to use all six elements every time — but the more you include, the better your results. Start with C, O and R as your minimum three.
+  </div>
 </div>
 
 <script>
@@ -726,6 +936,22 @@ function showResults(result) {
 
 function nextChallenge() { loadChallenge(); }
 
+// ── CO-STAR REFERENCE DRAWER ─────────────────────────────────
+function openCSDrawer() {
+  document.getElementById('cs-drawer').classList.add('open');
+  document.getElementById('cs-overlay').classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeCSDrawer() {
+  document.getElementById('cs-drawer').classList.remove('open');
+  document.getElementById('cs-overlay').classList.remove('open');
+  document.body.style.overflow = '';
+}
+// Close on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeCSDrawer();
+});
+
 // Run connection check as soon as the page loads
 window.onload = function() { checkConnection(); };
 
@@ -804,3 +1030,4 @@ function showFinal() {
 </script>
 </body>
 </html>
+
