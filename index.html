@@ -1,8 +1,3 @@
-
-Jayanta Biswas <biswasjayanta@gmail.com>
-3:18 PM (0 minutes ago)
-to me
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -140,6 +135,97 @@ to me
   .badge { padding: 7px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; border: 2px solid #e5ddd5; background: #f7f4ef; color: #a8a29e; }
   .badge.on { background: #fef3c7; border-color: #fde68a; color: #92400e; }
   .divider { height: 1px; background: #e5ddd5; margin: 18px 0; }
+
+  /* Connection status badge */
+  .status-bar {
+    display: flex;
+    justify-content: center;
+    margin-top: 12px;
+    min-height: 28px;
+  }
+  .status-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 14px;
+    border-radius: 99px;
+    font-size: 0.78rem;
+    font-weight: 700;
+  }
+  .status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+  .status-live {
+    background: #dcfce7;
+    color: #15803d;
+    border: 1px solid #86efac;
+  }
+  .status-live .status-dot { background: #15803d; animation: blink 2s ease-in-out infinite; }
+  .status-demo {
+    background: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fde68a;
+  }
+  .status-demo .status-dot { background: #d97706; }
+  .status-checking {
+    background: #f5f0eb;
+    color: #a8a29e;
+    border: 1px solid #e5ddd5;
+  }
+  .status-checking .status-dot { background: #a8a29e; animation: blink 0.8s ease-in-out infinite; }
+  @keyframes blink { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+
+  /* In-game nav bar */
+  .game-nav {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    gap: 10px;
+  }
+  .nav-btn {
+    background: none;
+    border: none;
+    font-family: inherit;
+    font-size: 0.8rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    padding: 7px 12px;
+    border-radius: 8px;
+    transition: all 0.15s;
+  }
+  .nav-btn-home {
+    color: #78716c;
+    border: 1.5px solid #e5ddd5;
+    background: #fff;
+  }
+  .nav-btn-home:hover { border-color: #a8a29e; color: #44403c; background: #f7f4ef; }
+  .nav-btn-skip {
+    color: #1a7f6e;
+    border: 1.5px solid #b2ddd6;
+    background: #e8f5f2;
+  }
+  .nav-btn-skip:hover { background: #d0ede8; border-color: #1a7f6e; }
+
+  /* Mode tag shown on result cards */
+  .mode-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    font-weight: 700;
+    padding: 3px 10px;
+    border-radius: 99px;
+    margin-bottom: 14px;
+  }
+  .mode-tag-live { background: #dcfce7; color: #15803d; }
+  .mode-tag-demo { background: #fef3c7; color: #92400e; }
 </style>
 </head>
 <body>
@@ -149,6 +235,12 @@ to me
     <span class="header-emoji">✏️</span>
     <h1 class="header-title">Prompt Quest</h1>
     <p class="header-sub">Learn to write better AI prompts with the CO-STAR framework</p>
+    <div class="status-bar">
+      <div id="status-pill" class="status-pill status-checking">
+        <div class="status-dot"></div>
+        <span id="status-text">Checking connection...</span>
+      </div>
+    </div>
   </div>
 
   <!-- WELCOME -->
@@ -223,6 +315,12 @@ to me
 
   <!-- CHALLENGE -->
   <div id="s-challenge" class="screen">
+
+    <div class="game-nav">
+      <button class="nav-btn nav-btn-home" onclick="goHome()">← Home</button>
+      <button class="nav-btn nav-btn-skip" id="skip-btn" onclick="skipToFinal()">Skip to final score →</button>
+    </div>
+
     <div class="prog-wrap">
       <div class="prog-meta">
         <span class="prog-label" id="prog-label">Challenge 1 of 5</span>
@@ -275,6 +373,7 @@ to me
   <!-- RESULTS -->
   <div id="s-results" class="screen">
     <div class="card">
+      <div id="result-mode-tag"></div>
       <div class="sec-label">CO-STAR Breakdown</div>
       <div class="score-grid" id="score-grid"></div>
       <div class="total-block">
@@ -290,6 +389,7 @@ to me
       <div class="improved-box" id="improved-box"></div>
     </div>
     <div class="btn-row-right">
+      <button class="nav-btn nav-btn-home" onclick="goHome()">← Home</button>
       <button class="btn btn-green" id="next-btn" onclick="nextChallenge()">Next challenge</button>
     </div>
   </div>
@@ -315,6 +415,7 @@ to me
         <div class="cs-cell" style="background:#fee2e2;border-color:#fca5a5;"><div class="cs-letter" style="color:#dc2626;">R</div><div class="cs-word" style="color:#dc2626;">Response</div><div class="cs-def" style="color:#7f1d1d;">Specify the output</div></div>
       </div>
       <div class="btn-row" style="margin-top:20px;">
+        <button class="nav-btn nav-btn-home" onclick="goHome()">← Back to Home</button>
         <button class="btn btn-green" onclick="restart()">Play again</button>
       </div>
     </div>
@@ -371,6 +472,54 @@ var COSTAR = {
 };
 
 var idx = 0, total = 0, rounds = [], hintOpen = false;
+var isLiveMode = false; // tracks whether last result used live AI or demo
+
+// ── CONNECTION CHECK ──────────────────────────────────────────
+// Runs on page load. Sends a tiny ping to the Netlify function.
+// Updates the header status badge with the result.
+function checkConnection() {
+  fetch('/api/score', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ scenario: 'ping', prompt: 'ping', ping: true })
+  })
+  .then(function(res) {
+    // Any response from the function (even an error JSON) means it's reachable
+    // and the key is configured. A 500 "key not configured" means no key set.
+    return res.json().then(function(data) {
+      return { status: res.status, data: data };
+    });
+  })
+  .then(function(r) {
+    if (r.status === 200 || (r.data && !r.data.error)) {
+      setStatus('live');
+    } else if (r.data && r.data.error && r.data.error.indexOf('key not configured') !== -1) {
+      setStatus('nokey');
+    } else {
+      // Function reached but something else happened - still live
+      setStatus('live');
+    }
+  })
+  .catch(function() {
+    // Function not reachable at all - running locally or not deployed
+    setStatus('demo');
+  });
+}
+
+function setStatus(mode) {
+  var pill = document.getElementById('status-pill');
+  var text = document.getElementById('status-text');
+  if (mode === 'live') {
+    pill.className = 'status-pill status-live';
+    text.textContent = 'Live AI scoring active (GPT-4o)';
+  } else if (mode === 'nokey') {
+    pill.className = 'status-pill status-demo';
+    text.textContent = 'Demo mode - API key not set in Netlify';
+  } else {
+    pill.className = 'status-pill status-demo';
+    text.textContent = 'Demo mode - connect to Netlify for live scoring';
+  }
+}
 
 function show(id) {
   var screens = document.querySelectorAll('.screen');
@@ -382,12 +531,33 @@ function show(id) {
 function beginGame() { idx = 0; total = 0; rounds = []; loadChallenge(); }
 function restart()   { idx = 0; total = 0; rounds = []; loadChallenge(); }
 
+function goHome() {
+  // Reset all state and return to welcome screen
+  idx = 0; total = 0; rounds = [];
+  show('s-welcome');
+}
+
+function skipToFinal() {
+  // Show final score with whatever has been answered so far
+  // If nothing answered yet, total will be 0
+  showFinal();
+}
+
 function loadChallenge() {
   if (idx >= CHALLENGES.length) { showFinal(); return; }
   var ch = CHALLENGES[idx];
   document.getElementById('prog-label').textContent = 'Challenge ' + (idx + 1) + ' of ' + CHALLENGES.length;
   document.getElementById('prog-score').textContent = 'Score: ' + total;
   document.getElementById('prog-fill').style.width = ((idx / CHALLENGES.length) * 100) + '%';
+
+  // Update skip button — hide it on the very first challenge if nothing scored yet
+  var skipBtn = document.getElementById('skip-btn');
+  if (rounds.length === 0) {
+    skipBtn.style.display = 'none'; // nothing to show yet
+  } else {
+    skipBtn.style.display = 'flex';
+    skipBtn.textContent = 'Skip to final score (' + rounds.length + ' answered) \u2192';
+  }
   document.getElementById('ch-num').textContent = 'Challenge ' + (idx + 1);
   var d = document.getElementById('ch-diff');
   d.textContent = ch.diff; d.className = 'diff-pill ' + ch.cls;
@@ -444,10 +614,12 @@ function submitPrompt() {
   })
   .then(function(result) {
     clearInterval(iv);
+    isLiveMode = true;
     showResults(result);
   })
   .catch(function() {
     clearInterval(iv);
+    isLiveMode = false;
     // Graceful fallback to demo scoring if server is unavailable
     showResults(demoScore(prompt));
   });
@@ -485,6 +657,13 @@ function demoScore(prompt) {
 }
 
 function showResults(result) {
+  // Show live/demo tag at top of result card
+  var tag = document.getElementById('result-mode-tag');
+  if (isLiveMode) {
+    tag.innerHTML = '<div class="mode-tag mode-tag-live">✅ Scored by GPT-4o (live AI)</div>';
+  } else {
+    tag.innerHTML = '<div class="mode-tag mode-tag-demo">⚡ Demo mode scoring (keyword-based)</div>';
+  }
   var grid = document.getElementById('score-grid');
   grid.innerHTML = '';
   var letters = ['C','O','S','T','A','R'];
@@ -528,6 +707,9 @@ function showResults(result) {
 
 function nextChallenge() { loadChallenge(); }
 
+// Run connection check as soon as the page loads
+window.onload = function() { checkConnection(); };
+
 function gradeFor(pct) {
   if (pct >= 90) return { grade: 'Prompt Master', emoji: '⭐' };
   if (pct >= 75) return { grade: 'Advanced Prompter', emoji: '🎯' };
@@ -537,32 +719,60 @@ function gradeFor(pct) {
 }
 
 function showFinal() {
-  var max = CHALLENGES.length * 60;
-  var pct = Math.round((total / max) * 100);
+  var answered = rounds.length;
+  var maxPossible = CHALLENGES.length * 60;
+  var earnedMax = answered * 60;
+
+  // Score percentage based only on what was actually answered
+  var pct = answered > 0 ? Math.round((total / earnedMax) * 100) : 0;
   var g = gradeFor(pct);
-  document.getElementById('final-score').textContent = total + ' / ' + max;
-  document.getElementById('final-grade').textContent = g.emoji + ' ' + g.grade;
-  document.getElementById('final-trophy').textContent = pct >= 75 ? '🏆' : pct >= 60 ? '🥈' : '🎓';
-  var msgs = [
-    [90,'Outstanding! You clearly understand how to communicate with AI. You are ready to use CO-STAR every day.'],
-    [75,'Impressive! You have a strong grasp of CO-STAR. A little more focus on Tone and Audience will make you unstoppable.'],
-    [60,'Good progress! You are building the skill. Focus on always specifying your audience and desired output format.'],
-    [40,'You have got the spark! Keep practising - each prompt you write will get sharper.'],
-    [0, 'Every expert started here. Focus on CO-STAR one element at a time and you will improve quickly.']
-  ];
-  var msg = msgs[msgs.length-1][1];
-  for (var i = 0; i < msgs.length; i++) { if (pct >= msgs[i][0]) { msg = msgs[i][1]; break; } }
+
+  // Show score as earned / max-of-answered (not total possible)
+  document.getElementById('final-score').textContent = total + ' / ' + earnedMax;
+  document.getElementById('final-grade').textContent = answered > 0 ? (g.emoji + ' ' + g.grade) : '';
+  document.getElementById('final-trophy').textContent = answered === 0 ? '👋' : (pct >= 75 ? '🏆' : pct >= 60 ? '🥈' : '🎓');
+
+  // Message — handle zero answers, partial, and full game
+  var msg;
+  if (answered === 0) {
+    msg = 'You have not answered any challenges yet. Head back home and give it a go — it only takes a few minutes!';
+  } else if (answered < CHALLENGES.length) {
+    var msgs = [
+      [90, 'Outstanding scoring so far! You clearly have a strong grasp of CO-STAR. Try the remaining challenges to push even higher.'],
+      [75, 'Impressive! You are already performing well. The remaining challenges will sharpen your skills further.'],
+      [60, 'Good progress on the challenges you attempted. Try a few more to build on this foundation.'],
+      [40, 'A solid start! Each challenge you complete will make your prompts sharper.'],
+      [0,  'You have made a start — every prompt you write builds the skill. Come back and try more challenges!']
+    ];
+    var found = msgs[msgs.length - 1][1];
+    for (var k = 0; k < msgs.length; k++) { if (pct >= msgs[k][0]) { found = msgs[k][1]; break; } }
+    msg = 'Based on ' + answered + ' of ' + CHALLENGES.length + ' challenges answered. ' + found;
+  } else {
+    var fullMsgs = [
+      [90, 'Outstanding! You clearly understand how to communicate with AI. You are ready to use CO-STAR every day.'],
+      [75, 'Impressive! You have a strong grasp of CO-STAR. A little more focus on Tone and Audience will make you unstoppable.'],
+      [60, 'Good progress! You are building the skill. Focus on always specifying your audience and desired output format.'],
+      [40, 'You have got the spark! Keep practising - each prompt you write will get sharper.'],
+      [0,  'Every expert started here. Focus on CO-STAR one element at a time and you will improve quickly.']
+    ];
+    var found2 = fullMsgs[fullMsgs.length - 1][1];
+    for (var m = 0; m < fullMsgs.length; m++) { if (pct >= fullMsgs[m][0]) { found2 = fullMsgs[m][1]; break; } }
+    msg = found2;
+  }
   document.getElementById('final-msg').textContent = msg;
-  document.getElementById('prog-fill').style.width = '100%';
-  document.getElementById('prog-label').textContent = 'All done!';
-  document.getElementById('prog-score').textContent = 'Final: ' + total;
+
+  document.getElementById('prog-fill').style.width = answered > 0 ? ((answered / CHALLENGES.length) * 100) + '%' : '0%';
+  document.getElementById('prog-label').textContent = answered + ' of ' + CHALLENGES.length + ' challenges answered';
+  document.getElementById('prog-score').textContent = 'Score: ' + total;
+
   var bw = document.getElementById('badges');
   bw.innerHTML = '';
   var ach = [
-    {label:'All 5 challenges completed', earned:true},
-    {label:'50 or more on one challenge', earned:rounds.some(function(s){return s>=50;})},
-    {label:'Overall 75% or above', earned:pct>=75},
-    {label:'Prompt Master (90%+)', earned:pct>=90}
+    { label: 'First challenge done',        earned: answered >= 1 },
+    { label: 'All 5 challenges completed',  earned: answered >= CHALLENGES.length },
+    { label: '50 or more on one challenge', earned: rounds.some(function(s) { return s >= 50; }) },
+    { label: 'Overall 75% or above',        earned: answered > 0 && pct >= 75 },
+    { label: 'Prompt Master (90%+)',         earned: answered > 0 && pct >= 90 }
   ];
   for (var j = 0; j < ach.length; j++) {
     var el = document.createElement('div');
