@@ -1,0 +1,20 @@
+# ============================================================
+#  netlify.toml - Netlify configuration
+#
+#  This tells Netlify:
+#  - Where your website files are (the root folder)
+#  - Where your serverless functions are
+# ============================================================
+
+[build]
+  # The game HTML lives in the root folder
+  publish = "."
+
+  # The serverless functions live here
+  functions = "netlify/functions"
+
+# Redirect the function to a cleaner URL (optional but nice)
+[[redirects]]
+  from = "/api/score"
+  to   = "/.netlify/functions/score"
+  status = 200

@@ -1,0 +1,18 @@
+# ============================================================
+#  .gitignore
+#
+#  Files that should NEVER be uploaded to GitHub
+# ============================================================
+
+# Local environment file (if you ever create one for local testing)
+.env
+.env.local
+
+# Node modules if you ever install any locally
+node_modules/
+
+# Mac system files
+.DS_Store
+
+# Windows system files
+Thumbs.db

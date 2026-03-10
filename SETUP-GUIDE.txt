@@ -1,0 +1,129 @@
+PROMPT QUEST - NETLIFY SETUP GUIDE
+====================================
+
+YOUR FOLDER STRUCTURE
+---------------------
+prompt-quest/
+  index.html                      <- The game
+  netlify.toml                    <- Netlify configuration
+  .gitignore                      <- Protects sensitive files
+  netlify/
+    functions/
+      score.js                    <- Secure API function (key lives here on server)
+
+
+HOW THE SECURITY WORKS
+-----------------------
+  Browser (no key)
+       |
+       | sends only: scenario text + user's prompt
+       v
+  Netlify Function - score.js     <- Your API key lives HERE, on the server
+       |
+       | calls OpenAI with the key
+       v
+  OpenAI API
+       |
+       v
+  Netlify Function returns score JSON to browser
+
+  The browser never sees your API key. Ever.
+
+
+STEP 1 - CREATE A FREE NETLIFY ACCOUNT
+----------------------------------------
+1. Go to netlify.com
+2. Click "Sign up"
+3. Choose "Sign up with GitHub" (easiest option)
+4. Authorise Netlify to access your GitHub
+
+
+STEP 2 - PUSH YOUR FILES TO GITHUB
+------------------------------------
+If you already have a GitHub repo for this project:
+
+  Option A - GitHub Desktop (easiest):
+  1. Open GitHub Desktop
+  2. Add the prompt-quest folder as a repository
+  3. Commit all files
+  4. Push to GitHub
+
+  Option B - Command line:
+  cd prompt-quest
+  git init
+  git add .
+  git commit -m "Initial commit"
+  git branch -M main
+  git remote add origin https://github.com/YOUR-USERNAME/prompt-quest.git
+  git push -u origin main
+
+  IMPORTANT: The .gitignore file will make sure no sensitive
+  files are ever uploaded.
+
+
+STEP 3 - CONNECT YOUR REPO TO NETLIFY
+---------------------------------------
+1. Log in to netlify.com
+2. Click "Add new site"
+3. Click "Import an existing project"
+4. Click "Deploy with GitHub"
+5. Find and select your prompt-quest repository
+6. On the build settings screen:
+     - Build command: leave this EMPTY
+     - Publish directory: leave as "." (a dot)
+7. Click "Deploy site"
+
+Netlify will deploy your site in about 30 seconds.
+You will get a URL like: https://cheerful-fox-abc123.netlify.app
+
+
+STEP 4 - ADD YOUR API KEY (THE SECURE PART)
+---------------------------------------------
+This is where the magic happens. Your key goes into
+Netlify's environment variables - NOT into any file.
+
+1. In your Netlify dashboard, click on your site
+2. Go to: Site configuration > Environment variables
+3. Click "Add a variable"
+4. Set:
+     Key:   OPENAI_API_KEY
+     Value: sk-proj-your-actual-key-here
+5. Click "Save"
+6. Go to: Deploys > click "Trigger deploy" > "Deploy site"
+
+Your site will redeploy in 30 seconds with the key
+securely stored on the server.
+
+
+STEP 5 - TEST IT
+-----------------
+1. Open your Netlify URL
+2. Click "Play the game"
+3. Write a prompt and click "Analyse my prompt"
+4. You should see a live CO-STAR score from GPT-4o
+
+If you see demo-mode scoring instead, check:
+- The environment variable name is exactly: OPENAI_API_KEY
+- You triggered a redeploy after adding the variable
+- Your OpenAI account has available credits
+
+
+YOUR FINAL SHAREABLE URL
+--------------------------
+https://YOUR-SITE-NAME.netlify.app
+
+You can also set a custom domain in Netlify if you want
+something like: promptquest.yourdomain.com
+
+
+UPDATING THE GAME LATER
+-------------------------
+Whenever you push changes to GitHub, Netlify automatically
+redeploys within 1 minute. No manual steps needed.
+
+
+COST
+-----
+Netlify free tier:       100GB bandwidth/month - more than enough
+OpenAI cost per game:    approximately $0.01 to $0.02 per full session
+                         (5 challenges, GPT-4o pricing)

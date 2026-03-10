@@ -1,0 +1,577 @@
+
+Jayanta Biswas <biswasjayanta@gmail.com>
+3:18 PM (0 minutes ago)
+to me
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prompt Quest - Learn the CO-STAR Framework</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: #f7f4ef;
+    color: #1c1917;
+    min-height: 100vh;
+  }
+
+  .page { max-width: 700px; margin: 0 auto; padding: 20px 16px 60px; }
+
+  /* Header */
+  .header { text-align: center; padding: 36px 0 28px; }
+  .header-emoji { font-size: 3rem; display: block; margin-bottom: 10px; animation: bob 3s ease-in-out infinite; }
+  @keyframes bob { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-8px); } }
+  .header-title { font-size: 2.4rem; font-weight: 800; color: #1a7f6e; letter-spacing: -0.02em; }
+  .header-sub { color: #78716c; font-size: 1rem; margin-top: 6px; }
+
+  /* Screens */
+  .screen { display: none; }
+  .screen.active { display: block; animation: fadein 0.3s ease; }
+  @keyframes fadein { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+
+  /* Card */
+  .card { background: #fff; border: 1px solid #e5ddd5; border-radius: 16px; padding: 24px 28px; margin-bottom: 18px; box-shadow: 0 2px 10px rgba(0,0,0,0.06); }
+  .card-title { font-size: 1.1rem; font-weight: 800; margin-bottom: 6px; }
+  .card-body { color: #78716c; font-size: 0.92rem; line-height: 1.65; margin-bottom: 18px; }
+
+  /* CO-STAR grid */
+  .cs-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 22px; }
+  @media (max-width: 480px) { .cs-grid { grid-template-columns: repeat(2, 1fr); } }
+  .cs-cell { border-radius: 12px; padding: 14px 12px; text-align: center; border: 2px solid transparent; transition: transform 0.15s; }
+  .cs-cell:hover { transform: translateY(-3px); }
+  .cs-letter { font-size: 1.8rem; font-weight: 900; line-height: 1; margin-bottom: 4px; }
+  .cs-word { font-size: 0.8rem; font-weight: 800; margin-bottom: 3px; }
+  .cs-def { font-size: 0.72rem; line-height: 1.4; }
+
+  /* Buttons */
+  .btn { display: inline-flex; align-items: center; gap: 6px; padding: 12px 22px; border-radius: 10px; font-family: inherit; font-weight: 700; font-size: 0.92rem; cursor: pointer; border: none; transition: all 0.15s; }
+  .btn-green { background: #1a7f6e; color: #fff; }
+  .btn-green:hover { background: #15695a; transform: translateY(-1px); box-shadow: 0 4px 14px rgba(26,127,110,0.3); }
+  .btn-gray { background: #f5f0eb; color: #78716c; border: 2px solid #e5ddd5; }
+  .btn-gray:hover { border-color: #a8a29e; color: #44403c; }
+  .btn-row { display: flex; gap: 10px; justify-content: center; flex-wrap: wrap; margin-top: 20px; }
+  .btn-row-right { display: flex; gap: 10px; justify-content: flex-end; margin-top: 18px; flex-wrap: wrap; }
+
+  /* How it works */
+  .steps { display: flex; flex-direction: column; gap: 14px; }
+  .step { display: flex; gap: 14px; align-items: flex-start; }
+  .step-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; flex-shrink: 0; }
+  .step-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 3px; }
+  .step-desc { font-size: 0.84rem; color: #78716c; line-height: 1.55; }
+
+  /* Progress */
+  .prog-wrap { margin-bottom: 20px; }
+  .prog-meta { display: flex; justify-content: space-between; margin-bottom: 8px; }
+  .prog-label { font-size: 0.82rem; font-weight: 700; color: #78716c; }
+  .prog-score { font-size: 0.82rem; font-weight: 800; color: #1a7f6e; }
+  .prog-track { height: 8px; background: #e8f5f2; border-radius: 99px; overflow: hidden; }
+  .prog-fill { height: 100%; background: linear-gradient(90deg, #1a7f6e, #2da893); border-radius: 99px; transition: width 0.6s ease; }
+
+  /* Challenge */
+  .ch-meta { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+  .ch-num { font-size: 0.78rem; color: #a8a29e; font-weight: 700; }
+  .diff-pill { font-size: 0.72rem; font-weight: 800; padding: 3px 10px; border-radius: 99px; }
+  .diff-easy { background: #dcfce7; color: #15803d; }
+  .diff-medium { background: #fef3c7; color: #d97706; }
+  .diff-hard { background: #fee2e2; color: #dc2626; }
+  .ch-title { font-size: 1.2rem; font-weight: 800; margin-bottom: 14px; line-height: 1.3; }
+  .mission-box { background: #fdf0ec; border-left: 4px solid #e8623a; border-radius: 0 10px 10px 0; padding: 14px 16px; font-size: 0.92rem; line-height: 1.7; color: #3d1c10; }
+  .mission-label { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.08em; text-transform: uppercase; color: #e8623a; margin-bottom: 7px; }
+
+  /* Prompt input */
+  .input-label { font-size: 0.88rem; font-weight: 700; display: block; margin-bottom: 8px; }
+  .prompt-area { width: 100%; border: 2px solid #e5ddd5; border-radius: 12px; padding: 14px; font-family: inherit; font-size: 0.93rem; line-height: 1.7; color: #1c1917; background: #f7f4ef; resize: vertical; min-height: 140px; outline: none; transition: border-color 0.2s, box-shadow 0.2s; }
+  .prompt-area:focus { border-color: #1a7f6e; box-shadow: 0 0 0 3px rgba(26,127,110,0.1); background: #fff; }
+  .char-info { font-size: 0.75rem; color: #a8a29e; text-align: right; margin-top: 5px; font-weight: 600; }
+
+  /* Hint */
+  .hint-toggle { background: none; border: none; font-family: inherit; font-size: 0.84rem; font-weight: 700; color: #d97706; cursor: pointer; padding: 8px 0; display: flex; align-items: center; gap: 6px; }
+  .hint-toggle:hover { color: #b45309; }
+  .hint-box { background: #fef3c7; border: 1px solid #fde68a; border-radius: 10px; padding: 13px 16px; font-size: 0.84rem; line-height: 1.65; color: #78350f; margin-top: 4px; display: none; }
+  .hint-box.open { display: block; animation: fadein 0.2s ease; }
+
+  /* Error */
+  .err-box { background: #fee2e2; border: 1px solid #fca5a5; border-radius: 8px; padding: 10px 14px; font-size: 0.84rem; color: #dc2626; font-weight: 600; margin-top: 10px; display: none; }
+
+  /* Loading */
+  .load-card { text-align: center; padding: 50px 20px; }
+  .spinner { width: 52px; height: 52px; border: 4px solid #e8f5f2; border-top-color: #1a7f6e; border-radius: 50%; animation: spin 0.85s linear infinite; margin: 0 auto 20px; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .load-title { font-size: 1.05rem; font-weight: 800; margin-bottom: 6px; }
+  .load-sub { font-size: 0.88rem; color: #78716c; animation: pulse 1.5s ease-in-out infinite; }
+  @keyframes pulse { 0%,100% { opacity: 0.4; } 50% { opacity: 1; } }
+
+  /* Score grid */
+  .score-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 22px; }
+  @media (max-width: 480px) { .score-grid { grid-template-columns: 1fr; } }
+  .score-cell { border-radius: 12px; padding: 14px; border-width: 2px; border-style: solid; animation: fadein 0.4s ease both; }
+  .sc-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .sc-label { display: flex; align-items: center; gap: 8px; }
+  .sc-badge { width: 30px; height: 30px; border-radius: 7px; color: #fff; font-weight: 900; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .sc-name { font-weight: 800; font-size: 0.86rem; }
+  .sc-num { font-weight: 900; font-size: 0.95rem; }
+  .bar-track { height: 5px; background: rgba(0,0,0,0.08); border-radius: 99px; overflow: hidden; margin-bottom: 8px; }
+  .bar-fill { height: 100%; border-radius: 99px; width: 0; transition: width 1s cubic-bezier(0.4,0,0.2,1) 0.2s; }
+  .sc-tip { font-size: 0.76rem; color: #78716c; line-height: 1.5; }
+
+  /* Total */
+  .total-block { background: #e8f5f2; border-radius: 14px; text-align: center; padding: 28px 20px; margin-bottom: 18px; }
+  .total-label { font-size: 0.72rem; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; color: #1a7f6e; margin-bottom: 8px; }
+  .total-num { font-size: 3.2rem; font-weight: 900; color: #1a7f6e; line-height: 1; }
+  .total-grade { font-size: 0.95rem; font-weight: 700; color: #57534e; margin-top: 8px; }
+  .total-feedback { font-size: 0.88rem; color: #57534e; line-height: 1.65; margin-top: 10px; max-width: 460px; margin-left: auto; margin-right: auto; }
+
+  /* Improved box */
+  .improved-box { background: #dcfce7; border: 1px solid #86efac; border-radius: 12px; padding: 18px; font-size: 0.9rem; line-height: 1.8; color: #14532d; white-space: pre-wrap; }
+  .sec-label { font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.08em; color: #a8a29e; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; }
+  .sec-label::after { content: ''; flex: 1; height: 1px; background: #e5ddd5; }
+
+  /* Final */
+  .final-center { text-align: center; padding: 16px 0 24px; }
+  .final-trophy { font-size: 4.5rem; display: block; animation: bob 3s ease-in-out infinite; margin-bottom: 14px; }
+  .final-score { font-size: 3.5rem; font-weight: 900; color: #1a7f6e; line-height: 1; }
+  .final-grade { font-size: 1rem; font-weight: 700; color: #57534e; margin-top: 8px; }
+  .final-msg { font-size: 0.92rem; color: #57534e; line-height: 1.7; margin-top: 12px; max-width: 440px; margin-left: auto; margin-right: auto; }
+  .badges { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin: 20px 0; }
+  .badge { padding: 7px 14px; border-radius: 99px; font-size: 0.8rem; font-weight: 700; border: 2px solid #e5ddd5; background: #f7f4ef; color: #a8a29e; }
+  .badge.on { background: #fef3c7; border-color: #fde68a; color: #92400e; }
+  .divider { height: 1px; background: #e5ddd5; margin: 18px 0; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="header">
+    <span class="header-emoji">✏️</span>
+    <h1 class="header-title">Prompt Quest</h1>
+    <p class="header-sub">Learn to write better AI prompts with the CO-STAR framework</p>
+  </div>
+
+  <!-- WELCOME -->
+  <div id="s-welcome" class="screen active">
+    <div class="card">
+      <div class="card-title">What is CO-STAR?</div>
+      <div class="card-body">CO-STAR is a simple 6-part framework for writing AI prompts that get far better results. Each letter stands for one key ingredient.</div>
+      <div class="cs-grid">
+        <div class="cs-cell" style="background:#e8f5f2;border-color:#b2ddd6;">
+          <div class="cs-letter" style="color:#1a7f6e;">C</div>
+          <div class="cs-word" style="color:#1a7f6e;">Context</div>
+          <div class="cs-def" style="color:#2d6a62;">Background the AI needs to understand your situation</div>
+        </div>
+        <div class="cs-cell" style="background:#fdf0ec;border-color:#f5c4b5;">
+          <div class="cs-letter" style="color:#e8623a;">O</div>
+          <div class="cs-word" style="color:#e8623a;">Objective</div>
+          <div class="cs-def" style="color:#8b3820;">The clear goal - what you want AI to actually do</div>
+        </div>
+        <div class="cs-cell" style="background:#ede9fe;border-color:#c4b5fd;">
+          <div class="cs-letter" style="color:#7c3aed;">S</div>
+          <div class="cs-word" style="color:#7c3aed;">Style</div>
+          <div class="cs-def" style="color:#4c1d95;">How the response should be written</div>
+        </div>
+        <div class="cs-cell" style="background:#fef3c7;border-color:#fde68a;">
+          <div class="cs-letter" style="color:#d97706;">T</div>
+          <div class="cs-word" style="color:#d97706;">Tone</div>
+          <div class="cs-def" style="color:#92400e;">The feel - professional, friendly, inspiring</div>
+        </div>
+        <div class="cs-cell" style="background:#dcfce7;border-color:#86efac;">
+          <div class="cs-letter" style="color:#15803d;">A</div>
+          <div class="cs-word" style="color:#15803d;">Audience</div>
+          <div class="cs-def" style="color:#14532d;">Who will read the output</div>
+        </div>
+        <div class="cs-cell" style="background:#fee2e2;border-color:#fca5a5;">
+          <div class="cs-letter" style="color:#dc2626;">R</div>
+          <div class="cs-word" style="color:#dc2626;">Response</div>
+          <div class="cs-def" style="color:#7f1d1d;">The format - email, list, summary</div>
+        </div>
+      </div>
+      <div class="btn-row">
+        <button class="btn btn-green" onclick="beginGame()">Play the game</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">How it works</div>
+      <div class="steps">
+        <div class="step">
+          <div class="step-icon" style="background:#e8f5f2;">📖</div>
+          <div>
+            <div class="step-title">Read a real-world scenario</div>
+            <div class="step-desc">Each challenge gives you a situation - like writing a tricky email or planning a training programme.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-icon" style="background:#fdf0ec;">✍️</div>
+          <div>
+            <div class="step-title">Write your prompt</div>
+            <div class="step-desc">Type the prompt you would send to an AI assistant. No rules - just write what feels natural.</div>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-icon" style="background:#fef3c7;">📊</div>
+          <div>
+            <div class="step-title">Get your CO-STAR score</div>
+            <div class="step-desc">AI scores your prompt on all 6 elements and shows an improved version so you can see the difference.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- CHALLENGE -->
+  <div id="s-challenge" class="screen">
+    <div class="prog-wrap">
+      <div class="prog-meta">
+        <span class="prog-label" id="prog-label">Challenge 1 of 5</span>
+        <span class="prog-score" id="prog-score">Score: 0</span>
+      </div>
+      <div class="prog-track">
+        <div class="prog-fill" id="prog-fill" style="width:0%"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ch-meta">
+        <span class="ch-num" id="ch-num">Challenge 1</span>
+        <span class="diff-pill diff-easy" id="ch-diff">Easy</span>
+      </div>
+      <div class="ch-title" id="ch-title"></div>
+      <div class="mission-box">
+        <div class="mission-label">Your mission</div>
+        <div id="ch-scenario"></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <label class="input-label" for="prompt-input">Write your prompt below</label>
+      <textarea id="prompt-input" class="prompt-area" placeholder="Type the prompt you would send to an AI assistant for this scenario..."></textarea>
+      <div class="char-info"><span id="char-ct">0</span> characters</div>
+      <button class="hint-toggle" onclick="toggleHint()">
+        <span id="hint-ico">💡</span>
+        <span id="hint-lbl">Need a hint?</span>
+      </button>
+      <div class="hint-box" id="hint-box"></div>
+      <div id="prompt-err" class="err-box">Please write a prompt before submitting!</div>
+      <div class="btn-row-right">
+        <button class="btn btn-green" onclick="submitPrompt()">Analyse my prompt</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- LOADING -->
+  <div id="s-loading" class="screen">
+    <div class="card">
+      <div class="load-card">
+        <div class="spinner"></div>
+        <div class="load-title">Scoring your prompt...</div>
+        <div class="load-sub" id="load-msg">Checking each CO-STAR element</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- RESULTS -->
+  <div id="s-results" class="screen">
+    <div class="card">
+      <div class="sec-label">CO-STAR Breakdown</div>
+      <div class="score-grid" id="score-grid"></div>
+      <div class="total-block">
+        <div class="total-label">Your score</div>
+        <div class="total-num" id="total-num">0 / 60</div>
+        <div class="total-grade" id="total-grade"></div>
+        <div class="total-feedback" id="total-feedback"></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="sec-label">How an expert would write this prompt</div>
+      <p style="font-size:0.84rem;color:#78716c;margin-bottom:12px;line-height:1.6;">Here is a rewritten version that scores highly on every CO-STAR element:</p>
+      <div class="improved-box" id="improved-box"></div>
+    </div>
+    <div class="btn-row-right">
+      <button class="btn btn-green" id="next-btn" onclick="nextChallenge()">Next challenge</button>
+    </div>
+  </div>
+
+  <!-- FINAL -->
+  <div id="s-final" class="screen">
+    <div class="card">
+      <div class="final-center">
+        <span class="final-trophy" id="final-trophy">🏆</span>
+        <div class="final-score" id="final-score">0 / 300</div>
+        <div class="final-grade" id="final-grade"></div>
+        <div class="final-msg" id="final-msg"></div>
+      </div>
+      <div class="badges" id="badges"></div>
+      <div class="divider"></div>
+      <div class="sec-label">CO-STAR Quick Reminder</div>
+      <div class="cs-grid">
+        <div class="cs-cell" style="background:#e8f5f2;border-color:#b2ddd6;"><div class="cs-letter" style="color:#1a7f6e;">C</div><div class="cs-word" style="color:#1a7f6e;">Context</div><div class="cs-def" style="color:#2d6a62;">Set the scene</div></div>
+        <div class="cs-cell" style="background:#fdf0ec;border-color:#f5c4b5;"><div class="cs-letter" style="color:#e8623a;">O</div><div class="cs-word" style="color:#e8623a;">Objective</div><div class="cs-def" style="color:#8b3820;">State the goal</div></div>
+        <div class="cs-cell" style="background:#ede9fe;border-color:#c4b5fd;"><div class="cs-letter" style="color:#7c3aed;">S</div><div class="cs-word" style="color:#7c3aed;">Style</div><div class="cs-def" style="color:#4c1d95;">Define the format</div></div>
+        <div class="cs-cell" style="background:#fef3c7;border-color:#fde68a;"><div class="cs-letter" style="color:#d97706;">T</div><div class="cs-word" style="color:#d97706;">Tone</div><div class="cs-def" style="color:#92400e;">Set the mood</div></div>
+        <div class="cs-cell" style="background:#dcfce7;border-color:#86efac;"><div class="cs-letter" style="color:#15803d;">A</div><div class="cs-word" style="color:#15803d;">Audience</div><div class="cs-def" style="color:#14532d;">Know your reader</div></div>
+        <div class="cs-cell" style="background:#fee2e2;border-color:#fca5a5;"><div class="cs-letter" style="color:#dc2626;">R</div><div class="cs-word" style="color:#dc2626;">Response</div><div class="cs-def" style="color:#7f1d1d;">Specify the output</div></div>
+      </div>
+      <div class="btn-row" style="margin-top:20px;">
+        <button class="btn btn-green" onclick="restart()">Play again</button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+// ============================================================
+//  The game calls /api/score (your Netlify serverless function)
+//  The OpenAI API key lives ONLY on the server - never here.
+// ============================================================
+
+var CHALLENGES = [
+  {
+    diff: "Easy", cls: "diff-easy",
+    title: "Plan a Birthday Party",
+    scenario: "Your best friend turns 30 next month. You want AI to help you plan a fun celebration for 15 adults who love food and the outdoors. Write a prompt to get great ideas from an AI assistant.",
+    hint: "Try including <strong>who the person is</strong> (context), <strong>what you want AI to produce</strong> (objective), <strong>who will use the output</strong>, and <strong>what format</strong> would be useful - like a checklist or step-by-step plan."
+  },
+  {
+    diff: "Easy", cls: "diff-easy",
+    title: "Explain a Complex Topic Simply",
+    scenario: "You need to explain how the internet works to a group of retirees who just bought their first smartphones. They are curious but not tech-savvy at all. Write a prompt to get AI to create a simple, engaging explanation.",
+    hint: "The key here is your <strong>audience</strong> - be very specific about who they are. Also define the <strong>tone</strong> (warm? patient?), the <strong>style</strong> (use analogies, avoid jargon), and the ideal <strong>length or format</strong>."
+  },
+  {
+    diff: "Medium", cls: "diff-medium",
+    title: "Write a Difficult Email",
+    scenario: "You are a project manager at a tech company. Your project is two weeks behind schedule due to unexpected technical issues. You need to inform your client - a senior executive at a bank - without damaging the relationship. Write a prompt to get AI to draft this email.",
+    hint: "This needs rich <strong>context</strong> (your role, the situation, the relationship). The <strong>tone</strong> is delicate - honest but reassuring. The <strong>objective</strong> is not just to inform but to maintain trust. Specify the <strong>response format</strong> - an email with a subject line."
+  },
+  {
+    diff: "Medium", cls: "diff-medium",
+    title: "Design a Training Programme",
+    scenario: "You are an HR manager launching company-wide data privacy training. Employees range from fresh graduates to senior managers. You have four weeks and need a plan that is genuinely engaging - not just a boring lecture series. Write a prompt to get AI to design this plan.",
+    hint: "Think about <strong>context</strong> (audience range, timeline, why this matters). The <strong>objective</strong> is a structured plan. Specify the <strong>style</strong> - engaging, not lecture-based. The <strong>response format</strong> could be a week-by-week table or outline."
+  },
+  {
+    diff: "Hard", cls: "diff-hard",
+    title: "Build a Social Media Strategy",
+    scenario: "You run a small artisan coffee brand with 2,000 Instagram followers. You want to grow to 20,000 in six months using only organic content - no paid ads. Your audience is urban millennials who care about sustainability and quality. Write a prompt to get AI to create a content strategy.",
+    hint: "Pack in the <strong>context</strong> - brand niche, current state, goal, constraints. Be crystal clear on the <strong>objective</strong>. Specify the <strong>audience</strong> demographics. Ask for the <strong>response</strong> in a useful format. Think about the brand <strong>tone</strong> too."
+  }
+];
+
+var COSTAR = {
+  C: { name: "Context",   color: "#1a7f6e", bg: "#e8f5f2", border: "#b2ddd6" },
+  O: { name: "Objective", color: "#e8623a", bg: "#fdf0ec", border: "#f5c4b5" },
+  S: { name: "Style",     color: "#7c3aed", bg: "#ede9fe", border: "#c4b5fd" },
+  T: { name: "Tone",      color: "#d97706", bg: "#fef3c7", border: "#fde68a" },
+  A: { name: "Audience",  color: "#15803d", bg: "#dcfce7", border: "#86efac" },
+  R: { name: "Response",  color: "#dc2626", bg: "#fee2e2", border: "#fca5a5" }
+};
+
+var idx = 0, total = 0, rounds = [], hintOpen = false;
+
+function show(id) {
+  var screens = document.querySelectorAll('.screen');
+  for (var i = 0; i < screens.length; i++) screens[i].classList.remove('active');
+  document.getElementById(id).classList.add('active');
+  window.scrollTo(0, 0);
+}
+
+function beginGame() { idx = 0; total = 0; rounds = []; loadChallenge(); }
+function restart()   { idx = 0; total = 0; rounds = []; loadChallenge(); }
+
+function loadChallenge() {
+  if (idx >= CHALLENGES.length) { showFinal(); return; }
+  var ch = CHALLENGES[idx];
+  document.getElementById('prog-label').textContent = 'Challenge ' + (idx + 1) + ' of ' + CHALLENGES.length;
+  document.getElementById('prog-score').textContent = 'Score: ' + total;
+  document.getElementById('prog-fill').style.width = ((idx / CHALLENGES.length) * 100) + '%';
+  document.getElementById('ch-num').textContent = 'Challenge ' + (idx + 1);
+  var d = document.getElementById('ch-diff');
+  d.textContent = ch.diff; d.className = 'diff-pill ' + ch.cls;
+  document.getElementById('ch-title').textContent = ch.title;
+  document.getElementById('ch-scenario').textContent = ch.scenario;
+  document.getElementById('hint-box').innerHTML = ch.hint;
+  document.getElementById('hint-box').classList.remove('open');
+  document.getElementById('hint-lbl').textContent = 'Need a hint?';
+  document.getElementById('hint-ico').textContent = '💡';
+  hintOpen = false;
+  document.getElementById('prompt-input').value = '';
+  document.getElementById('char-ct').textContent = '0';
+  document.getElementById('prompt-err').style.display = 'none';
+  show('s-challenge');
+}
+
+function toggleHint() {
+  hintOpen = !hintOpen;
+  document.getElementById('hint-box').classList.toggle('open', hintOpen);
+  document.getElementById('hint-lbl').textContent = hintOpen ? 'Hide hint' : 'Need a hint?';
+  document.getElementById('hint-ico').textContent = hintOpen ? '🙈' : '💡';
+}
+
+document.getElementById('prompt-input').addEventListener('input', function() {
+  document.getElementById('char-ct').textContent = this.value.length;
+});
+
+function submitPrompt() {
+  var prompt = document.getElementById('prompt-input').value.trim();
+  document.getElementById('prompt-err').style.display = 'none';
+  if (!prompt) { document.getElementById('prompt-err').style.display = 'block'; return; }
+
+  show('s-loading');
+  var msgs = ['Checking each CO-STAR element...', 'Calculating your score...', 'Writing your improved prompt...', 'Almost done...'];
+  var mi = 0;
+  var iv = setInterval(function() {
+    mi = (mi + 1) % msgs.length;
+    document.getElementById('load-msg').textContent = msgs[mi];
+  }, 1400);
+
+  // Call our secure Netlify serverless function
+  // The API key never leaves the server - this is just the scenario + prompt
+  fetch('/api/score', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      scenario: CHALLENGES[idx].scenario,
+      prompt: prompt
+    })
+  })
+  .then(function(res) {
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    return res.json();
+  })
+  .then(function(result) {
+    clearInterval(iv);
+    showResults(result);
+  })
+  .catch(function() {
+    clearInterval(iv);
+    // Graceful fallback to demo scoring if server is unavailable
+    showResults(demoScore(prompt));
+  });
+}
+
+function demoScore(prompt) {
+  var p = prompt.toLowerCase(), words = prompt.split(/\s+/).length;
+  function sc(keys) {
+    var hits = 0;
+    for (var i = 0; i < keys.length; i++) if (p.indexOf(keys[i]) !== -1) hits++;
+    var base = Math.round((hits / keys.length) * 10);
+    var lb = words > 50 ? 2 : words > 25 ? 1 : 0;
+    return Math.min(10, Math.max(1, base + lb + (Math.random() < 0.5 ? 1 : 0)));
+  }
+  var C = sc(['i am','i work','my company','we are','currently','role','team','background','situation','context','organisation']);
+  var O = sc(['help me','please','i need','i want','create','write','draft','design','build','generate','goal','objective']);
+  var S = sc(['bullet','list','step by step','format','table','paragraph','short','detailed','concise','section','outline']);
+  var T = sc(['professional','friendly','formal','casual','warm','encouraging','serious','inspiring','tone','voice','engaging']);
+  var A = sc(['for','audience','readers','my team','customers','beginners','experts','seniors','managers','who will read']);
+  var R = sc(['output','format','email','report','summary','plan','table','numbered','length','words','response','deliver']);
+  var t = C+O+S+T+A+R;
+  return {
+    scores: {
+      C:{score:C, tip:C<6?'Add background info about your role or the situation.':'Good context. You could add even more specifics.'},
+      O:{score:O, tip:O<6?'Say clearly what you want the AI to produce.':'Clear goal. Try making it even more specific.'},
+      S:{score:S, tip:S<6?'Mention how the response should be structured.':'Good style guidance. Add formatting preferences.'},
+      T:{score:T, tip:T<6?'Specify the tone - professional, friendly, inspiring?':'Tone noted. Be even more precise if you can.'},
+      A:{score:A, tip:A<6?'Who is the audience for this output? Define them.':'Audience noted. More detail on their level would help.'},
+      R:{score:R, tip:R<6?'What format do you want - email, list, table?':'Format mentioned. Define structure or length more.'}
+    },
+    total: t,
+    feedback: t>=45 ? 'Strong prompt! You have covered most CO-STAR elements well. Sharpening your audience definition and output format would make it excellent.' : 'You have a solid start. Focus on being more specific about who will read the output and what format you would like.',
+    improved: 'I am a [your role] at [organisation name]. [Briefly describe the situation or challenge the AI needs to know about].\n\nPlease [specific action - write / create / plan / summarise] [exactly what you need] for [clearly defined audience - their role, experience level, and what they care about].\n\nWrite in a [tone] tone. Structure the response as [specific format - for example a numbered plan, a professional email, or a weekly table]. Keep it [length or style guidance].\n\nAvoid [anything to exclude]. Make sure to include [any must-have elements].'
+  };
+}
+
+function showResults(result) {
+  var grid = document.getElementById('score-grid');
+  grid.innerHTML = '';
+  var letters = ['C','O','S','T','A','R'];
+  for (var i = 0; i < letters.length; i++) {
+    (function(letter, delay) {
+      var data = result.scores[letter], m = COSTAR[letter];
+      var cell = document.createElement('div');
+      cell.className = 'score-cell';
+      cell.style.background = m.bg;
+      cell.style.borderColor = m.border;
+      cell.style.animationDelay = delay + 's';
+      cell.innerHTML =
+        '<div class="sc-top">' +
+          '<div class="sc-label">' +
+            '<div class="sc-badge" style="background:'+m.color+'">'+letter+'</div>' +
+            '<div class="sc-name">'+m.name+'</div>' +
+          '</div>' +
+          '<div class="sc-num" style="color:'+m.color+'">'+data.score+'/10</div>' +
+        '</div>' +
+        '<div class="bar-track"><div class="bar-fill" id="bf-'+letter+'" style="background:'+m.color+'"></div></div>' +
+        '<div class="sc-tip">'+data.tip+'</div>';
+      grid.appendChild(cell);
+      setTimeout(function() {
+        var b = document.getElementById('bf-'+letter);
+        if (b) b.style.width = (data.score * 10) + '%';
+      }, 100 + delay * 1000);
+    })(letters[i], i * 0.07);
+  }
+  var pct = Math.round((result.total / 60) * 100);
+  var g = gradeFor(pct);
+  document.getElementById('total-num').textContent = result.total + ' / 60';
+  document.getElementById('total-grade').textContent = g.emoji + ' ' + g.grade;
+  document.getElementById('total-feedback').textContent = result.feedback;
+  document.getElementById('improved-box').textContent = result.improved;
+  document.getElementById('next-btn').textContent = idx >= CHALLENGES.length - 1 ? 'See my final score' : 'Next challenge';
+  total += result.total;
+  rounds.push(result.total);
+  idx++;
+  show('s-results');
+}
+
+function nextChallenge() { loadChallenge(); }
+
+function gradeFor(pct) {
+  if (pct >= 90) return { grade: 'Prompt Master', emoji: '⭐' };
+  if (pct >= 75) return { grade: 'Advanced Prompter', emoji: '🎯' };
+  if (pct >= 60) return { grade: 'Developing Skill', emoji: '📈' };
+  if (pct >= 40) return { grade: 'Needs Sharpening', emoji: '🔧' };
+  return { grade: 'Great Start', emoji: '💡' };
+}
+
+function showFinal() {
+  var max = CHALLENGES.length * 60;
+  var pct = Math.round((total / max) * 100);
+  var g = gradeFor(pct);
+  document.getElementById('final-score').textContent = total + ' / ' + max;
+  document.getElementById('final-grade').textContent = g.emoji + ' ' + g.grade;
+  document.getElementById('final-trophy').textContent = pct >= 75 ? '🏆' : pct >= 60 ? '🥈' : '🎓';
+  var msgs = [
+    [90,'Outstanding! You clearly understand how to communicate with AI. You are ready to use CO-STAR every day.'],
+    [75,'Impressive! You have a strong grasp of CO-STAR. A little more focus on Tone and Audience will make you unstoppable.'],
+    [60,'Good progress! You are building the skill. Focus on always specifying your audience and desired output format.'],
+    [40,'You have got the spark! Keep practising - each prompt you write will get sharper.'],
+    [0, 'Every expert started here. Focus on CO-STAR one element at a time and you will improve quickly.']
+  ];
+  var msg = msgs[msgs.length-1][1];
+  for (var i = 0; i < msgs.length; i++) { if (pct >= msgs[i][0]) { msg = msgs[i][1]; break; } }
+  document.getElementById('final-msg').textContent = msg;
+  document.getElementById('prog-fill').style.width = '100%';
+  document.getElementById('prog-label').textContent = 'All done!';
+  document.getElementById('prog-score').textContent = 'Final: ' + total;
+  var bw = document.getElementById('badges');
+  bw.innerHTML = '';
+  var ach = [
+    {label:'All 5 challenges completed', earned:true},
+    {label:'50 or more on one challenge', earned:rounds.some(function(s){return s>=50;})},
+    {label:'Overall 75% or above', earned:pct>=75},
+    {label:'Prompt Master (90%+)', earned:pct>=90}
+  ];
+  for (var j = 0; j < ach.length; j++) {
+    var el = document.createElement('div');
+    el.className = 'badge' + (ach[j].earned ? ' on' : '');
+    el.textContent = (ach[j].earned ? '🏅 ' : '🔒 ') + ach[j].label;
+    bw.appendChild(el);
+  }
+  show('s-final');
+}
+</script>
+</body>
+</html>
