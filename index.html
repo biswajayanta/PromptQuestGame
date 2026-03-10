@@ -151,6 +151,10 @@
     border-radius: 99px;
     font-size: 0.78rem;
     font-weight: 700;
+    max-width: 100%;
+    flex-wrap: wrap;
+    text-align: center;
+    justify-content: center;
   }
   .status-dot {
     width: 8px;
@@ -475,49 +479,65 @@ var idx = 0, total = 0, rounds = [], hintOpen = false;
 var isLiveMode = false; // tracks whether last result used live AI or demo
 
 // ── CONNECTION CHECK ──────────────────────────────────────────
-// Runs on page load. Sends a tiny ping to the Netlify function.
-// Updates the header status badge with the result.
+// Calls the Netlify function directly (bypasses the /api/score
+// redirect which can sometimes fail to resolve on first load).
+// Shows exact reason if something goes wrong, plus a Retry button.
+
+var FUNCTION_URL = '/.netlify/functions/score';
+
 function checkConnection() {
-  fetch('/api/score', {
+  setStatus('checking', '');
+
+  fetch(FUNCTION_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ scenario: 'ping', prompt: 'ping', ping: true })
   })
   .then(function(res) {
-    // Any response from the function (even an error JSON) means it's reachable
-    // and the key is configured. A 500 "key not configured" means no key set.
-    return res.json().then(function(data) {
-      return { status: res.status, data: data };
+    var status = res.status;
+    return res.text().then(function(text) {
+      var data = null;
+      try { data = JSON.parse(text); } catch(e) {}
+      return { status: status, data: data, raw: text };
     });
   })
   .then(function(r) {
-    if (r.status === 200 || (r.data && !r.data.error)) {
-      setStatus('live');
-    } else if (r.data && r.data.error && r.data.error.indexOf('key not configured') !== -1) {
-      setStatus('nokey');
+    if (r.status === 200 && r.data && r.data.ok) {
+      setStatus('live', '');
+    } else if (r.status === 500 && r.data && r.data.error && r.data.error.indexOf('key not configured') !== -1) {
+      setStatus('nokey', 'Add OPENAI_API_KEY in Netlify > Site config > Environment variables');
+    } else if (r.status === 404) {
+      setStatus('error', 'Function not found - check netlify/functions/score.js is deployed');
     } else {
-      // Function reached but something else happened - still live
-      setStatus('live');
+      setStatus('error', 'Unexpected response (' + r.status + '): ' + (r.raw || '').substring(0, 80));
     }
   })
-  .catch(function() {
-    // Function not reachable at all - running locally or not deployed
-    setStatus('demo');
+  .catch(function(err) {
+    // Only hits here if running locally (file://) - on Netlify the function is always reachable
+    setStatus('local', err.message || 'Cannot reach function - are you running locally?');
   });
 }
 
-function setStatus(mode) {
+function setStatus(mode, detail) {
   var pill = document.getElementById('status-pill');
   var text = document.getElementById('status-text');
-  if (mode === 'live') {
+  var retry = '<button onclick="checkConnection()" style="margin-left:8px;background:none;border:1px solid currentColor;border-radius:6px;padding:2px 8px;font-size:0.72rem;font-weight:700;cursor:pointer;font-family:inherit;">Retry</button>';
+
+  if (mode === 'checking') {
+    pill.className = 'status-pill status-checking';
+    text.innerHTML = 'Checking connection...';
+  } else if (mode === 'live') {
     pill.className = 'status-pill status-live';
-    text.textContent = 'Live AI scoring active (GPT-4o)';
+    text.innerHTML = 'Live AI scoring active (GPT-4o)';
   } else if (mode === 'nokey') {
     pill.className = 'status-pill status-demo';
-    text.textContent = 'Demo mode - API key not set in Netlify';
-  } else {
+    text.innerHTML = 'API key missing in Netlify' + (detail ? ' &mdash; ' + detail : '') + retry;
+  } else if (mode === 'local') {
     pill.className = 'status-pill status-demo';
-    text.textContent = 'Demo mode - connect to Netlify for live scoring';
+    text.innerHTML = 'Demo mode &mdash; open on Netlify for live scoring' + retry;
+  } else if (mode === 'error') {
+    pill.className = 'status-pill status-demo';
+    text.innerHTML = 'Connection error' + (detail ? ': ' + detail : '') + retry;
   }
 }
 
@@ -598,9 +618,8 @@ function submitPrompt() {
     document.getElementById('load-msg').textContent = msgs[mi];
   }, 1400);
 
-  // Call our secure Netlify serverless function
-  // The API key never leaves the server - this is just the scenario + prompt
-  fetch('/api/score', {
+  // Call the Netlify function directly (most reliable URL)
+  fetch(FUNCTION_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({
