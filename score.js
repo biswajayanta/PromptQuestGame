@@ -41,6 +41,16 @@ exports.handler = async function(event) {
 
   var scenario = body.scenario || '';
   var prompt   = body.prompt   || '';
+  var isPing   = body.ping     || false;
+
+  // Health check ping - just confirms the function + key are working
+  if (isPing) {
+    return {
+      statusCode: 200,
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ ok: true, mode: 'live' })
+    };
+  }
 
   if (!scenario || !prompt) {
     return {
